@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <time.h>
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
 
@@ -28,6 +29,11 @@ struct Complex
     }
 };
 
+Complex operator + (const Complex& a, const Complex& b)
+{
+    return {a.Re + b.Re, a.Im + b.Im};
+}
+
 struct MyImage
 {
     sf::Texture texture;
@@ -45,6 +51,41 @@ struct MyImage
     }
 };
 
-Complex operator + (const Complex& a, const Complex& b);
+struct Fps
+{
+    sf::Font font;
+    sf::Text text;
+
+    double time_prev = clock();
+    double time_now  = 0;
+    double time_last_out = 0;
+
+    const double FPS_DELAY = CLOCKS_PER_SEC / 5;
+
+    char str[16] = "fps = 000.00";
+
+    Fps()
+    {
+        if (!font.loadFromFile ("font.ttf"))
+            return;
+
+        text.setFont (font);
+        text.setCharacterSize (24); 
+        text.setFillColor (sf::Color::Red);
+    }
+
+    void Renew()
+    {
+        time_now = clock();
+        if (time_now - time_last_out > FPS_DELAY)
+        {
+            sprintf (str + 6, "%.2lf\n", CLOCKS_PER_SEC / (time_now - time_prev));
+            text.setString (str);
+            time_last_out = time_now;
+        }
+        time_prev = time_now;
+    }
+};
+
 
 void RenderImage (const MyImage& img, char* pixels);

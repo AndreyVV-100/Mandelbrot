@@ -6,10 +6,7 @@ int main()
 
     sf::RenderWindow window(sf::VideoMode(1920, 1080), "Mandelbrot", sf::Style::Fullscreen);     
     MyImage img;
-    
-    RenderImage (img, (char*) *pixels);
-
-    img.texture.update ((uint8_t*) *pixels);
+    Fps fps;
 
     while (window.isOpen())
     {
@@ -54,15 +51,13 @@ int main()
         RenderImage (img, (char*) *pixels);
         img.texture.update ((uint8_t*) *pixels);
 
+        fps.Renew();
+
         window.clear();
         window.draw (img.set);
+        window.draw (fps.text);
         window.display();
     }
-}
-
-Complex operator + (const Complex& a, const Complex& b)
-{
-    return {a.Re + b.Re, a.Im + b.Im};
 }
 
 void RenderImage (const MyImage& img, char* pixels)
