@@ -30,22 +30,22 @@ int main()
 
                     case sf::Keyboard::A:
                     case sf::Keyboard::Left:
-                        img.x_shift -= 0.1;
+                        img.x_shift -= 0.1 / img.scale;
                         break;
 
                     case sf::Keyboard::D:
                     case sf::Keyboard::Right:
-                        img.x_shift += 0.1;
+                        img.x_shift += 0.1 / img.scale;
                         break;
 
                     case sf::Keyboard::W:
                     case sf::Keyboard::Up:
-                        img.y_shift -= 0.1;
+                        img.y_shift -= 0.1 / img.scale;
                         break;
 
                     case sf::Keyboard::S:
                     case sf::Keyboard::Down:
-                        img.y_shift += 0.1;
+                        img.y_shift += 0.1 / img.scale;
                         break;
 
                     case sf::Keyboard::Escape:
@@ -89,12 +89,20 @@ void RenderImage (const MyImage& img, unsigned int* pixels)
         {  
             // ToDo: No copypaste
 
-            __m256d Re = _mm256_set_pd (((double) x / WIDTH - 0.5) / img.scale + img.x_shift,
-                                  ((double) (x + 1) / WIDTH - 0.5) / img.scale + img.x_shift,
-                                  ((double) (x + 2) / WIDTH - 0.5) / img.scale + img.x_shift,
-                                  ((double) (x + 3) / WIDTH - 0.5) / img.scale + img.x_shift);
+            // __m256d Re = _mm256_set_pd (((double) x / WIDTH - 0.5) / img.scale + img.x_shift,
+            //                       ((double) (x + 1) / WIDTH - 0.5) / img.scale + img.x_shift,
+            //                       ((double) (x + 2) / WIDTH - 0.5) / img.scale + img.x_shift,
+            //                       ((double) (x + 3) / WIDTH - 0.5) / img.scale + img.x_shift);
+
+            __m256d Re = _mm256_set_pd (0, 1, 2, 3);
+            Re = _mm256_add_pd (Re, _mm256_set1_pd (x));
+            Re = _mm256_div_pd (Re, _mm256_set1_pd (WIDTH));
+            Re = _mm256_sub_pd (Re, _mm256_set1_pd (0.5));
+            Re = _mm256_div_pd (Re, _mm256_set1_pd (img.scale));
+            Re = _mm256_add_pd (Re, _mm256_set1_pd (img.x_shift));
+
             __m256d Re0 = Re;
-            __m256d Im = _mm256_set1_pd (Im_num);
+            __m256d Im = _mm256_set1_pd (Im_num); // It's SSE-function move
             __m256d Im0 = Im;
 
             __m256d colored = _mm256_set1_pd (0);
